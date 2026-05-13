@@ -1,46 +1,61 @@
 using UnityEngine;
 using System.Collections;
-using TMPro;
 
 public class WaveSpawner : MonoBehaviour
 {
-    public Transform enemyPrefab;
+    [SerializeField] private EnemyPool enemyPool;
+    [SerializeField] private Transform spawnPoint;
 
-	public Transform spawnPoint;
+    [SerializeField] private float timeBetweenWaves = 5f;
+    [SerializeField] private float timeBetweenEnemies = 0.5f;
 
-	public float timeBetweenWaves = 5f;
-	private float countdown = 2f;
+    private float countdown = 2f;
+    private int waveIndex = 0;
 
-	public TMP_Text waveCountdownText;
+    private void OnEnable()
+    {
+        EnemyEvents.OnEnemyReachedEnd += HandleEnemyReachedEnd;
+    }
 
-	private int waveIndex = 0;
+    private void OnDisable()
+    {
+        EnemyEvents.OnEnemyReachedEnd -= HandleEnemyReachedEnd;
+    }
 
-	void Update ()
-	{
-		if (countdown <= 0f)
-		{
-			StartCoroutine(SpawnWave());
-			countdown = timeBetweenWaves;
-		}
+    private void Update()
+    {
+        if (countdown <= 0f)
+        {
+            StartCoroutine(SpawnWave());
+            countdown = timeBetweenWaves;
+        }
 
-		countdown -= Time.deltaTime;
+        countdown -= Time.deltaTime;
 
-		waveCountdownText.text = Mathf.Round(countdown).ToString();
-	}
+        WaveEvents.RaiseCountdownChanged(countdown);
+    }
 
-	IEnumerator SpawnWave ()
-	{
-		waveIndex++;
+    private IEnumerator SpawnWave()
+    {
+        waveIndex++;
 
-		for (int i = 0; i < waveIndex; i++)
-		{
-			SpawnEnemy();
-			yield return new WaitForSeconds(0.5f);
-		}
-	}
+        WaveEvents.RaiseWaveStarted(waveIndex);
 
-	void SpawnEnemy ()
-	{
-		Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation);
-	}
+        for (int i = 0; i < waveIndex; i++)
+        {
+            SpawnEnemy();
+            yield return new WaitForSeconds(timeBetweenEnemies);
+        }
+    }
+
+    private void SpawnEnemy()
+    {
+        Enemy enemy = enemyPool.GetEnemy(spawnPoint.position, spawnPoint.rotation);
+        WaveEvents.RaiseEnemySpawned(enemy);
+    }
+
+    private void HandleEnemyReachedEnd(Enemy enemy)
+    {
+        enemyPool.ReturnEnemy(enemy);
+    }
 }

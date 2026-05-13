@@ -10570,6 +10570,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7155022177368795286, guid: e3e539c94ff808549b37b777c97950d3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1462387785}
+    - targetCorrespondingSourceObject: {fileID: 7155022177368795286, guid: e3e539c94ff808549b37b777c97950d3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1462387793}
   m_SourcePrefab: {fileID: 100100000, guid: e3e539c94ff808549b37b777c97950d3, type: 3}
 --- !u!1 &1462387784 stripped
 GameObject:
@@ -10589,11 +10592,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   speed: 10
---- !u!4 &1462387789 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7071210665093557118, guid: e3e539c94ff808549b37b777c97950d3, type: 3}
-  m_PrefabInstance: {fileID: 1462387783}
+--- !u!114 &1462387793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1462387784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 434375291120e7a4588cc42ebb1e81b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaypointMovementStrategy
 --- !u!1001 &1483485585
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13939,6 +13949,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1881527350}
   - component: {fileID: 1881527349}
+  - component: {fileID: 1881527352}
+  - component: {fileID: 1881527351}
   m_Layer: 0
   m_Name: GameMaster
   m_TagString: Untagged
@@ -13958,10 +13970,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd23ea07cb775ba46b104c90a9af202b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  enemyPrefab: {fileID: 1462387789}
+  enemyPool: {fileID: 1881527352}
   spawnPoint: {fileID: 1792978592}
   timeBetweenWaves: 5
-  waveCountdownText: {fileID: 826717793}
+  timeBetweenEnemies: 0.5
 --- !u!4 &1881527350
 Transform:
   m_ObjectHideFlags: 0
@@ -13977,6 +13989,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1881527351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881527348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b71f5f233dc6e8429a5e031fa2fc9d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaveCountdownUI
+  waveCountdownText: {fileID: 826717793}
+--- !u!114 &1881527352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881527348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31ee8123d3812c74c9c51875001d99db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyPool
+  enemyPrefab: {fileID: 1462387785}
+  initialPoolSize: 10
 --- !u!1001 &1885039100
 PrefabInstance:
   m_ObjectHideFlags: 0

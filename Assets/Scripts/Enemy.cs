@@ -4,34 +4,36 @@ public class Enemy : MonoBehaviour
 {
     public float speed = 10f;
 
-	private Transform target;
-	private int wavepointIndex = 0;
+    private IEnemyMovementStrategy movementStrategy;
 
-	void Start ()
-	{
-		target = Waypoints.points[0];
-	}
+    private void Awake()
+    {
+        movementStrategy = GetComponent<IEnemyMovementStrategy>();
+    }
 
-	void Update ()
-	{
-		Vector3 dir = target.position - transform.position;
-		transform.Translate(dir.normalized * speed * Time.deltaTime, Space.World);
+    private void OnEnable()
+    {
+        movementStrategy?.Initialize(transform);
+    }
 
-		if (Vector3.Distance(transform.position, target.position) <= 0.4f)
-		{
-			GetNextWaypoint();
-		}
-	}
+    private void Update()
+    {
+        if (movementStrategy == null)
+        {
+            return;
+        }
 
-	void GetNextWaypoint()
-	{
-		if (wavepointIndex >= Waypoints.points.Length - 1)
-		{
-			Destroy(gameObject);
-			return;
-		}
+        bool reachedEnd = movementStrategy.Move(transform, speed);
 
-		wavepointIndex++;
-		target = Waypoints.points[wavepointIndex];
-	}
+        if (reachedEnd)
+        {
+            EnemyEvents.RaiseEnemyReachedEnd(this);
+            gameObject.SetActive(false);
+        }
+    }
+
+    public void ResetEnemy()
+    {
+        movementStrategy?.ResetMovement();
+    }
 }

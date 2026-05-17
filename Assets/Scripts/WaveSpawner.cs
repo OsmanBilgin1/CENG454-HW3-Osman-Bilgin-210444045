@@ -15,11 +15,13 @@ public class WaveSpawner : MonoBehaviour
     private void OnEnable()
     {
         EnemyEvents.OnEnemyReachedEnd += HandleEnemyReachedEnd;
+        EnemyEvents.OnEnemyDied += HandleEnemyReachedEnd;
     }
 
     private void OnDisable()
     {
         EnemyEvents.OnEnemyReachedEnd -= HandleEnemyReachedEnd;
+        EnemyEvents.OnEnemyDied -= HandleEnemyReachedEnd;
     }
 
     private void Update()

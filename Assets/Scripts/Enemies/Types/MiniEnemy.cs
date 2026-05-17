@@ -11,7 +11,7 @@ public class MiniEnemy : Enemy
         baseHealth = 60f;
     }
  
-    protected override float ModifyIncomingDamage(float damage)
+    protected override float ChangeIncomingDamage(float damage)
     {
         return damage * damageMultiplier;
     }

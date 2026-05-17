@@ -1,68 +1,75 @@
 using UnityEngine;
-
-public class Enemy : MonoBehaviour
+ 
+public abstract class Enemy : MonoBehaviour
 {
     [Header("Stats")]
-    public float speed = 10f;
-    public float maxHealth = 100f;
-    private float currentHealth;
-    private bool isDead = false;
-    
-    private IEnemyMovementStrategy movementStrategy;
-    
-
+    public float moveSpeed = 10f;
+    public float baseHealth = 100f;
+ 
+    private float activeHealth;
+    private bool isDestroyed = false;
+ 
+    private IEnemyMovementStrategy pathStrategy;
+ 
     private void Awake()
     {
-        movementStrategy = GetComponent<IEnemyMovementStrategy>();
+        pathStrategy = GetComponent<IEnemyMovementStrategy>();
+        OnAwake();
     }
-
+ 
     private void OnEnable()
     {
-        movementStrategy?.Initialize(transform);
+        pathStrategy?.Initialize(transform);
+        OnSpawned();
     }
-
+ 
     private void Update()
     {
-        if (movementStrategy == null || isDead)
-        {
-            return;
-        }
-
-        bool reachedEnd = movementStrategy.Move(transform, speed);
-
-        if (reachedEnd)
+        if (pathStrategy == null || isDestroyed) return;
+ 
+        bool hasReachedDestination = pathStrategy.Move(transform, moveSpeed);
+        if (hasReachedDestination)
         {
             EnemyEvents.RaiseEnemyReachedEnd(this);
             gameObject.SetActive(false);
         }
     }
-
-    public void TakeDamage(float amount)
+ 
+    public void ResetEntity()
     {
-        if (isDead)
-        {
-            return;
-        }
-        currentHealth -= amount;
-        
-        if (currentHealth <= 0f)
-        {
-            Die();
-        }
+        activeHealth = baseHealth;
+        isDestroyed = false;
+        pathStrategy?.ResetMovement();
+        OnReset();
     }
-
-    private void Die()
+ 
+    public void TakeDamage(float damageTaken)
     {
-        isDead = true;
+    if (isDestroyed) return;
+    float finalDamage = ChangeIncomingDamage(damageTaken); // önce modifiye et
+    activeHealth -= finalDamage;
+    OnDamageTaken(finalDamage);
+ 
+    if (activeHealth <= 0f)
+        ExecuteDeath();
+    }
+ 
+    protected virtual float ChangeIncomingDamage(float damage)
+    {
+        return damage;
+    }
+ 
+    private void ExecuteDeath()
+    {
+        isDestroyed = true;
         EnemyEvents.RaiseEnemyDied(this);
+        OnDeath();
         gameObject.SetActive(false);
     }
-
-    public void ResetEnemy()
-    {
-        currentHealth = maxHealth;
-        isDead = false;
-        movementStrategy?.ResetMovement();
-
-    }
+ 
+    protected virtual void OnAwake() { }
+    protected virtual void OnSpawned() { }
+    protected virtual void OnReset() { }
+    protected virtual void OnDamageTaken(float damage) { }
+    protected virtual void OnDeath() { }
 }

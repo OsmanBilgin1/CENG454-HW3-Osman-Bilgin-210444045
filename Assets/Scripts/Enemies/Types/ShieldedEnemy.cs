@@ -12,7 +12,7 @@ public class ShieldedEnemy : Enemy
     }
  
  
-    protected override float ModifyIncomingDamage(float damage)
+    protected override float ChangeIncomingDamage(float damage)
 {
     return damage * armorReduction;
 }

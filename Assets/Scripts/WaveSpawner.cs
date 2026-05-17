@@ -3,11 +3,16 @@ using System.Collections;
 
 public class WaveSpawner : MonoBehaviour
 {
-    [SerializeField] private EnemyPool enemyPool;
+    [SerializeField] private EnemyPool shieldedPool;
+    [SerializeField] private EnemyPool miniPool;
     [SerializeField] private Transform spawnPoint;
 
     [SerializeField] private float timeBetweenWaves = 5f;
     [SerializeField] private float timeBetweenEnemies = 0.5f;
+
+    [Header("Spawn Ratios")]
+    [Range(0f, 1f)]
+    [SerializeField] private float armoredSpawnChance = 0.3f;
 
     private float countdown = 2f;
     private int waveIndex = 0;
@@ -52,12 +57,18 @@ public class WaveSpawner : MonoBehaviour
 
     private void SpawnEnemy()
     {
-        Enemy enemy = enemyPool.GetEnemy(spawnPoint.position, spawnPoint.rotation);
+        bool spawnArmored = Random.value < armoredSpawnChance;
+        EnemyPool selectedPool = spawnArmored ? shieldedPool : miniPool;
+
+        Enemy enemy = selectedPool.GetEnemy(spawnPoint.position, spawnPoint.rotation);
         WaveEvents.RaiseEnemySpawned(enemy);
     }
 
     private void HandleEnemyReachedEnd(Enemy enemy)
     {
-        enemyPool.ReturnEnemy(enemy);
+        if (enemy is ShieldedEnemy)
+            shieldedPool.ReturnEnemy(enemy);
+        else
+            miniPool.ReturnEnemy(enemy);
     }
 }

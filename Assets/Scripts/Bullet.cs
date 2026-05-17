@@ -5,23 +5,19 @@ public class Bullet : MonoBehaviour
     private Transform target;
 
     public float speed = 70f;
+    public float damage = 50f;
     public GameObject impactEffect;
     
     public void Seek(Transform _target)
     {
         target = _target;
 
-        if (target != null)
-            Debug.Log("Seek çalıştı. Target: " + target.name);
-        else
-            Debug.LogWarning("Seek çalıştı ama target null geldi!");
     }
 
     void Update() 
     {
-        if (target == null)
+        if (target == null || !target.gameObject.activeInHierarchy)
         {
-            Debug.LogWarning("Target null. Bullet kendini siliyor: " + gameObject.name);
             Destroy(gameObject);
             return;
         }
@@ -29,7 +25,6 @@ public class Bullet : MonoBehaviour
         Vector3 dir = target.position - transform.position;
         float distanceThisFrame = speed * Time.deltaTime;
 
-        Debug.Log("Bullet distance: " + dir.magnitude + " | move this frame: " + distanceThisFrame);
 
         if (dir.magnitude <= distanceThisFrame)
         {
@@ -42,7 +37,6 @@ public class Bullet : MonoBehaviour
 
     void HitTarget()
     {
-        Debug.Log("Bullet hit target!");
 
         if (impactEffect != null)
         {
@@ -54,12 +48,13 @@ public class Bullet : MonoBehaviour
 
             Destroy(effectIns, 2f);
         }
-        else
+        
+        Enemy enemy = target.GetComponent<Enemy>();
+        if (enemy != null)
         {
-            Debug.LogWarning("Impact Effect atanmadı!");
+            enemy.TakeDamage(damage);
         }
 
-        Destroy(target.gameObject);
         Destroy(gameObject);
     }
 }

@@ -2,9 +2,14 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    [Header("Stats")]
     public float speed = 10f;
-
+    public float maxHealth = 100f;
+    private float currentHealth;
+    private bool isDead = false;
+    
     private IEnemyMovementStrategy movementStrategy;
+    
 
     private void Awake()
     {
@@ -18,7 +23,7 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
-        if (movementStrategy == null)
+        if (movementStrategy == null || isDead)
         {
             return;
         }
@@ -32,8 +37,32 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    public void TakeDamage(float amount)
+    {
+        if (isDead)
+        {
+            return;
+        }
+        currentHealth -= amount;
+        
+        if (currentHealth <= 0f)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        isDead = true;
+        EnemyEvents.RaiseEnemyDied(this);
+        gameObject.SetActive(false);
+    }
+
     public void ResetEnemy()
     {
+        currentHealth = maxHealth;
+        isDead = false;
         movementStrategy?.ResetMovement();
+
     }
 }

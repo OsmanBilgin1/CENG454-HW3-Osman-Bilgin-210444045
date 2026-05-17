@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 
 public class Turret : MonoBehaviour {
 
@@ -19,44 +18,50 @@ public class Turret : MonoBehaviour {
     [SerializeField] private BulletPool bulletPool;
     public Transform firePoint;
 
-    
+	private ITargetingStrategy targetingStrategy;
+
+    void Awake()
+    {
+        targetingStrategy = GetComponent<ITargetingStrategy>();
+    }
 
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 		InvokeRepeating("UpdateTarget", 0f, 0.5f);
 	}
 	
 	void UpdateTarget ()
 	{
-		GameObject[] enemies = GameObject.FindGameObjectsWithTag(enemyTag);
-		float shortestDistance = Mathf.Infinity;
-		GameObject nearestEnemy = null;
-		foreach (GameObject enemy in enemies)
-		{
-			float distanceToEnemy = Vector3.Distance(transform.position, enemy.transform.position);
-			if (distanceToEnemy < shortestDistance)
-			{
-				shortestDistance = distanceToEnemy;
-				nearestEnemy = enemy;
-			}
-		}
-
-		if (nearestEnemy != null && shortestDistance <= range)
-		{
-			target = nearestEnemy.transform;
-		} else
+		if (targetingStrategy == null)
 		{
 			target = null;
+			return;
 		}
 
+		GameObject[] enemyObjects = GameObject.FindGameObjectsWithTag(enemyTag);
+		var enemies = new System.Collections.Generic.List<Enemy>();
+		foreach (var go in enemyObjects)
+		{
+			var enemy = go.GetComponent<Enemy>();
+            if (enemy != null) enemies.Add(enemy);
+		}
+
+		target = targetingStrategy.FindTarget(transform.position, range, enemies);
 	}
 
 	// Update is called once per frame
 	void Update () {
 		if (target == null)
+		{
 			return;
+		}
 
+		if (!target.gameObject.activeInHierarchy)
+		{
+			target = null;
+			return;
+		}
 		//Target lock on
 		Vector3 dir = target.position - transform.position;
 		Quaternion lookRotation = Quaternion.LookRotation(dir);

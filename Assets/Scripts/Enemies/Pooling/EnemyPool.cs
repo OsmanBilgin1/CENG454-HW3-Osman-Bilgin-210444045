@@ -1,49 +1,43 @@
 using System.Collections.Generic;
 using UnityEngine;
-
+ 
 public class EnemyPool : MonoBehaviour
 {
-    [SerializeField] private Enemy enemyPrefab;
-    [SerializeField] private int initialPoolSize = 10;
-
-    private readonly Queue<Enemy> pool = new Queue<Enemy>();
-
+    [SerializeField] private Enemy entityPrefab;
+    [SerializeField] private int startupPoolCapacity = 15;
+ 
+    private readonly Queue<Enemy> entityQueue = new Queue<Enemy>();
+ 
     private void Awake()
     {
-        for (int i = 0; i < initialPoolSize; i++)
-        {
-            CreateEnemy();
-        }
+        for (int index = 0; index < startupPoolCapacity; index++)
+            InstantiateNewEntity();
     }
-
-    private Enemy CreateEnemy()
+ 
+    private void InstantiateNewEntity()
     {
-        Enemy enemy = Instantiate(enemyPrefab, transform);
-        enemy.gameObject.SetActive(false);
-        pool.Enqueue(enemy);
-        return enemy;
+        Enemy newEntity = Instantiate(entityPrefab, transform);
+        newEntity.gameObject.SetActive(false);
+        entityQueue.Enqueue(newEntity);
     }
-
-    public Enemy GetEnemy(Vector3 position, Quaternion rotation)
+ 
+    public Enemy GetEnemy(Vector3 spawnPosition, Quaternion spawnRotation)
     {
-        if (pool.Count == 0)
-        {
-            CreateEnemy();
-        }
-
-        Enemy enemy = pool.Dequeue();
-
-        enemy.transform.position = position;
-        enemy.transform.rotation = rotation;
-        enemy.ResetEnemy();
-        enemy.gameObject.SetActive(true);
-
-        return enemy;
+        if (entityQueue.Count == 0)
+            InstantiateNewEntity();
+ 
+        Enemy activeEntity = entityQueue.Dequeue();
+        activeEntity.transform.position = spawnPosition;
+        activeEntity.transform.rotation = spawnRotation;
+        activeEntity.ResetEntity();
+        activeEntity.gameObject.SetActive(true);
+ 
+        return activeEntity;
     }
-
-    public void ReturnEnemy(Enemy enemy)
+ 
+    public void ReturnEnemy(Enemy returningEntity)
     {
-        enemy.gameObject.SetActive(false);
-        pool.Enqueue(enemy);
+        returningEntity.gameObject.SetActive(false);
+        entityQueue.Enqueue(returningEntity);
     }
 }

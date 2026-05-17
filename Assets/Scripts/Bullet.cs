@@ -7,6 +7,13 @@ public class Bullet : MonoBehaviour
     public float speed = 70f;
     public float damage = 50f;
     public GameObject impactEffect;
+
+    private BulletPool pool;
+
+    public void SetPool(BulletPool bulletPool)
+    {
+        pool = bulletPool;
+    }
     
     public void Seek(Transform _target)
     {
@@ -18,7 +25,7 @@ public class Bullet : MonoBehaviour
     {
         if (target == null || !target.gameObject.activeInHierarchy)
         {
-            Destroy(gameObject);
+            ReturnToPool();
             return;
         }
 
@@ -55,6 +62,20 @@ public class Bullet : MonoBehaviour
             enemy.TakeDamage(damage);
         }
 
-        Destroy(gameObject);
+        ReturnToPool();
+    }
+
+        private void ReturnToPool()
+    {
+        target = null;
+        
+        if (pool != null)
+        {
+            pool.ReturnBullet(this);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 }

@@ -16,7 +16,7 @@ public class Turret : MonoBehaviour {
 	public Transform partToRotate;
 	public float turnSpeed = 10f;
 
-    public GameObject bulletPrefab;
+    [SerializeField] private BulletPool bulletPool;
     public Transform firePoint;
 
     
@@ -75,20 +75,10 @@ public class Turret : MonoBehaviour {
 	}
 
     void Shoot()
-    {
-        GameObject bulletGO = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-
-        Bullet bullet = bulletGO.GetComponent<Bullet>();
-
-        if (bullet != null)
-        {
-            bullet.Seek(target);
-        }
-        else
-        {
-            Debug.LogError("Bullet prefabinda Bullet scripti yok!");
-        }
-    }
+	{
+		Bullet bullet = bulletPool.GetBullet(firePoint.position, firePoint.rotation);
+    	bullet.Seek(target);
+	}
 
 	void OnDrawGizmosSelected ()
 	{
